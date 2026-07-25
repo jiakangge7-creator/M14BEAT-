@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="m14-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="50%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#4F46E5" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#m14-grad)" filter="url(#shadow)"/>
+  
+  <!-- Subtle Inner Ring -->
+  <rect x="48" y="48" width="416" height="416" rx="96" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="3"/>
+  
+  <!-- Central M + Beat Wave Emblem -->
+  <g transform="translate(256, 256)" text-anchor="middle">
+    <!-- Left M Stem / Wave Column 1 -->
+    <rect x="-140" y="-80" width="28" height="160" rx="14" fill="white"/>
+    
+    <!-- Wave Column 2 (Inner left peak) -->
+    <rect x="-90" y="-120" width="28" height="200" rx="14" fill="white" fill-opacity="0.95"/>
+    
+    <!-- Central V-Beat Peak -->
+    <path d="M-40 -40 L0 40 L40 -40" fill="none" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="0" cy="-70" r="18" fill="#F43F5E"/>
+    
+    <!-- Wave Column 4 (Inner right peak) -->
+    <rect x="62" y="-120" width="28" height="200" rx="14" fill="white" fill-opacity="0.95"/>
+    
+    <!-- Right M Stem / Wave Column 5 -->
+    <rect x="112" y="-80" width="28" height="160" rx="14" fill="white"/>
+    
+    <!-- Equalizer Audio Beat Pulse Dots below -->
+    <circle cx="-126" cy="115" r="8" fill="white" fill-opacity="0.8"/>
+    <circle cx="-76" cy="115" r="8" fill="white" fill-opacity="0.8"/>
+    <circle cx="-26" cy="115" r="8" fill="#22D3EE"/>
+    <circle cx="26" cy="115" r="8" fill="#22D3EE"/>
+    <circle cx="76" cy="115" r="8" fill="white" fill-opacity="0.8"/>
+    <circle cx="126" cy="115" r="8" fill="white" fill-opacity="0.8"/>
+  </g>
+</svg>

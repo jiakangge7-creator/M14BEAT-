@@ -82,10 +82,15 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-3 min-w-0">
           <div
             onClick={onOpenAdmin}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0 cursor-pointer hover:scale-105 transition-transform"
-            title="双击或点击快速发起后台管理"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl p-0.5 flex items-center justify-center bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 shadow-md shadow-indigo-500/25 shrink-0 cursor-pointer hover:scale-105 transition-transform overflow-hidden"
+            title="M14BEAT 官方Logo"
           >
-            <DynamicIcon name={config.logoIcon || 'Compass'} className="w-6 h-6 text-white" size={24} />
+            <img
+              src="/logo.svg"
+              alt="M14BEAT Logo"
+              className="w-full h-full object-cover rounded-[10px]"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

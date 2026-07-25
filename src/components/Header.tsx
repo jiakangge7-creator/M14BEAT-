@@ -1,0 +1,201 @@
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun, Monitor, Settings, Download, LayoutGrid, Clock } from 'lucide-react';
+import { ThemeMode, SiteConfig } from '../types';
+import { DynamicIcon } from './DynamicIcon';
+
+interface HeaderProps {
+  config: SiteConfig;
+  currentTheme: ThemeMode;
+  onThemeChange: (theme: ThemeMode) => void;
+  onOpenAdmin: () => void;
+  isLoggedIn: boolean;
+  activeTab: 'links' | 'files';
+  onTabChange: (tab: 'links' | 'files') => void;
+  fileCount: number;
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  config,
+  currentTheme,
+  onThemeChange,
+  onOpenAdmin,
+  isLoggedIn,
+  activeTab,
+  onTabChange,
+  fileCount,
+}) => {
+  const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentDate, setCurrentDate] = useState<string>('');
+  const [greeting, setGreeting] = useState<string>('你好');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      let g = '你好';
+      if (hours >= 5 && hours < 12) g = '早上好';
+      else if (hours >= 12 && hours < 18) g = '下午好';
+      else g = '晚上好';
+      setGreeting(g);
+
+      setCurrentTime(
+        now.toLocaleTimeString('zh-CN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        })
+      );
+
+      setCurrentDate(
+        now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'short',
+        })
+      );
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
+        
+        {/* Brand & Title */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            onClick={onOpenAdmin}
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0 cursor-pointer hover:scale-105 transition-transform"
+            title="双击或点击快速发起后台管理"
+          >
+            <DynamicIcon name={config.logoIcon || 'Compass'} className="w-6 h-6 text-white" size={24} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white truncate">
+                {config.title || 'M14BEAT导航'}
+              </h1>
+
+              {isLoggedIn && (
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md shrink-0">
+                  已上线管理员
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate hidden sm:block">
+              {config.subtitle}
+            </p>
+          </div>
+        </div>
+
+        {/* Center Clock Widget - Hidden on small mobile */}
+        <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50 text-xs font-medium text-slate-600 dark:text-slate-300">
+          <Clock className="w-3.5 h-3.5 text-indigo-500" />
+          <span>{greeting}！</span>
+          <span className="font-mono text-slate-800 dark:text-slate-200">{currentTime}</span>
+          <span className="text-slate-400 dark:text-slate-500">|</span>
+          <span className="text-slate-500 dark:text-slate-400">{currentDate}</span>
+        </div>
+
+        {/* Right Actions: Navigation View Switcher, Theme Switcher, Admin Button */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          
+          {/* Main Nav Tabs: Links vs Files */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs sm:text-sm font-medium border border-slate-200/60 dark:border-slate-700/60">
+            <button
+              onClick={() => onTabChange('links')}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'links'
+                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span>网址导航</span>
+            </button>
+            <button
+              onClick={() => onTabChange('files')}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'files'
+                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <Download className="w-4 h-4" />
+              <span>文件下载</span>
+              {fileCount > 0 && (
+                <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300">
+                  {fileCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Theme Dropdown Toggle */}
+          <div className="relative group">
+            <button
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              title="切换主题模式"
+            >
+              {currentTheme === 'light' ? (
+                <Sun className="w-4 h-4 text-amber-500" />
+              ) : currentTheme === 'dark' ? (
+                <Moon className="w-4 h-4 text-indigo-400" />
+              ) : (
+                <Monitor className="w-4 h-4 text-slate-500" />
+              )}
+            </button>
+            
+            {/* Theme popover menu */}
+            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 hidden group-hover:block z-50">
+              <button
+                onClick={() => onThemeChange('light')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
+                  currentTheme === 'light' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5 text-amber-500" /> 浅色模式
+              </button>
+              <button
+                onClick={() => onThemeChange('dark')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
+                  currentTheme === 'dark' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5 text-indigo-400" /> 深色模式
+              </button>
+              <button
+                onClick={() => onThemeChange('system')}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
+                  currentTheme === 'system' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Monitor className="w-3.5 h-3.5 text-slate-500" /> 跟随系统
+              </button>
+            </div>
+          </div>
+
+          {/* Admin Configuration Entry Button */}
+          <button
+            onClick={onOpenAdmin}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+              isLoggedIn
+                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/25'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700'
+            }`}
+            title="后台配置面板 (支持 Ctrl+Shift+A 快捷开启)"
+          >
+            <Settings className={`w-4 h-4 ${isLoggedIn ? 'animate-spin-slow' : ''}`} />
+            <span className="hidden xs:inline">{isLoggedIn ? '后台管理' : '后台管理'}</span>
+          </button>
+
+        </div>
+      </div>
+    </header>
+  );
+};

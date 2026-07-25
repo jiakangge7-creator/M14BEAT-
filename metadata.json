@@ -1,0 +1,6 @@
+{
+  "name": "M14BEAT导航",
+  "description": "M14BEAT 多端自动识别响应式极速网址导航与资源服务站",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

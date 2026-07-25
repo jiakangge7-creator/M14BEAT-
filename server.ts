@@ -42,7 +42,11 @@ try {
     db.config = { ...defaultData.config, ...(db.config || {}), title: db.config?.title === 'OmniNav 极速导航' ? 'M14BEAT导航' : (db.config?.title || 'M14BEAT导航') };
     db.categories = db.categories || defaultData.categories;
     db.links = db.links || [];
-    db.files = db.files || [];
+    db.files = (db.files || []).map((f) => ({
+      ...f,
+      filename: fixFilenameEncoding(f.filename),
+      title: fixFilenameEncoding(f.title),
+    }));
     db.searchEngines = db.searchEngines || defaultData.searchEngines;
     db.adminPasswordHash = db.adminPasswordHash || defaultData.adminPasswordHash;
     // Save updated db structure
@@ -67,6 +71,20 @@ function saveDb() {
 // Active session token store
 const activeTokens = new Set<string>();
 
+// Helper decoding original uploaded filename (converting latin1 header encoding back to UTF-8 if needed)
+function fixFilenameEncoding(name: string): string {
+  if (!name) return name;
+  if (/[\u0080-\u00FF]/.test(name)) {
+    try {
+      const decoded = Buffer.from(name, 'latin1').toString('utf8');
+      if (!decoded.includes('\uFFFD') && decoded !== name) {
+        return decoded;
+      }
+    } catch {}
+  }
+  return name;
+}
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -79,10 +97,10 @@ const storage = multer.diskStorage({
     cb(null, UPLOADS_DIR);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const safeName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_\-\u4e00-\u9fa5]/g, '_');
+    const cleanName = fixFilenameEncoding(file.originalname);
+    const ext = path.extname(cleanName) || '';
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e4);
-    cb(null, `${safeName}-${uniqueSuffix}${ext}`);
+    cb(null, `file-${uniqueSuffix}${ext}`);
   },
 });
 const upload = multer({
@@ -154,7 +172,15 @@ app.get('/api/files/download/:id', (req: Request, res: Response) => {
 
   const localPath = path.join(process.cwd(), fileItem.filePath.replace('/uploads/', 'uploads/'));
   if (fs.existsSync(localPath)) {
-    return res.download(localPath, fileItem.filename);
+    const rawFilename = fixFilenameEncoding(fileItem.filename || fileItem.title || path.basename(localPath));
+    const encodedFilename = encodeURIComponent(rawFilename);
+
+    // Set RFC 5987 compliant Content-Disposition for non-ASCII/Chinese filenames
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodedFilename}"; filename*=UTF-8''${encodedFilename}`
+    );
+    return res.sendFile(localPath);
   } else {
     return res.status(404).json({ error: '本地物理文件已被移除或不存在' });
   }
@@ -321,14 +347,15 @@ app.post('/api/upload', requireAuth, upload.single('file'), (req: Request, res: 
   if (!req.file) {
     return res.status(400).json({ error: '未收到上传的文件' });
   }
+  const cleanOriginalName = fixFilenameEncoding(req.file.originalname);
   const fileUrl = `/uploads/${req.file.filename}`;
   const formattedSize = formatBytes(req.file.size);
-  const ext = path.extname(req.file.originalname).replace('.', '').toUpperCase() || 'FILE';
+  const ext = path.extname(cleanOriginalName).replace('.', '').toUpperCase() || 'FILE';
 
   res.json({
     success: true,
     fileUrl,
-    filename: req.file.originalname,
+    filename: cleanOriginalName,
     fileSize: formattedSize,
     fileType: ext,
   });

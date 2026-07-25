@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Settings, Download, LayoutGrid, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Moon, Sun, Monitor, Settings, Download, LayoutGrid, Clock, Check } from 'lucide-react';
 import { ThemeMode, SiteConfig } from '../types';
 import { DynamicIcon } from './DynamicIcon';
 
@@ -27,6 +27,18 @@ export const Header: React.FC<HeaderProps> = ({
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [greeting, setGreeting] = useState<string>('你好');
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState<boolean>(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -137,10 +149,11 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Theme Dropdown Toggle */}
-          <div className="relative group">
+          <div className="relative" ref={themeMenuRef}>
             <button
-              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-              title="切换主题模式"
+              onClick={() => setIsThemeMenuOpen((prev) => !prev)}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 flex items-center justify-center"
+              title="切换主题模式 (点击展开菜单)"
             >
               {currentTheme === 'light' ? (
                 <Sun className="w-4 h-4 text-amber-500" />
@@ -152,32 +165,58 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             
             {/* Theme popover menu */}
-            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 hidden group-hover:block z-50">
-              <button
-                onClick={() => onThemeChange('light')}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
-                  currentTheme === 'light' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
-              >
-                <Sun className="w-3.5 h-3.5 text-amber-500" /> 浅色模式
-              </button>
-              <button
-                onClick={() => onThemeChange('dark')}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
-                  currentTheme === 'dark' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
-              >
-                <Moon className="w-3.5 h-3.5 text-indigo-400" /> 深色模式
-              </button>
-              <button
-                onClick={() => onThemeChange('system')}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium ${
-                  currentTheme === 'system' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
-              >
-                <Monitor className="w-3.5 h-3.5 text-slate-500" /> 跟随系统
-              </button>
-            </div>
+            {isThemeMenuOpen && (
+              <div className="absolute right-0 mt-1.5 w-36 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/90 dark:border-slate-700/90 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <button
+                  onClick={() => {
+                    onThemeChange('light');
+                    setIsThemeMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
+                    currentTheme === 'light'
+                      ? 'text-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 dark:text-indigo-300'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Sun className="w-3.5 h-3.5 text-amber-500" /> 浅色模式
+                  </span>
+                  {currentTheme === 'light' && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                </button>
+                <button
+                  onClick={() => {
+                    onThemeChange('dark');
+                    setIsThemeMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
+                    currentTheme === 'dark'
+                      ? 'text-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 dark:text-indigo-300'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Moon className="w-3.5 h-3.5 text-indigo-400" /> 深色模式
+                  </span>
+                  {currentTheme === 'dark' && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                </button>
+                <button
+                  onClick={() => {
+                    onThemeChange('system');
+                    setIsThemeMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
+                    currentTheme === 'system'
+                      ? 'text-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 dark:text-indigo-300'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Monitor className="w-3.5 h-3.5 text-slate-500" /> 跟随系统
+                  </span>
+                  {currentTheme === 'system' && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Admin Configuration Entry Button */}

@@ -92,12 +92,6 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white truncate">
                 {config.title || 'M14BEAT导航'}
               </h1>
-
-              {isLoggedIn && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md shrink-0">
-                  已上线管理员
-                </span>
-              )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate hidden sm:block">
               {config.subtitle}
@@ -218,20 +212,6 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
-
-          {/* Admin Configuration Entry Button */}
-          <button
-            onClick={onOpenAdmin}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-              isLoggedIn
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/25'
-                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700'
-            }`}
-            title="后台配置面板 (支持 Ctrl+Shift+A 快捷开启)"
-          >
-            <Settings className={`w-4 h-4 ${isLoggedIn ? 'animate-spin-slow' : ''}`} />
-            <span className="hidden xs:inline">{isLoggedIn ? '后台管理' : '后台管理'}</span>
-          </button>
 
         </div>
       </div>

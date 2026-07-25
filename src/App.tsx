@@ -44,6 +44,26 @@ export default function App() {
   useEffect(() => {
     loadData();
     verifyAdminSession().then((isValid) => setIsAdminLoggedIn(isValid));
+
+    // Check if URL indicates admin route (/admin, #admin, ?admin)
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      if (
+        path.endsWith('/admin') ||
+        path.endsWith('/manage') ||
+        hash === '#admin' ||
+        search.includes('admin') ||
+        search.includes('manage')
+      ) {
+        setIsAdminModalOpen(true);
+      }
+    };
+
+    checkAdminRoute();
+    window.addEventListener('popstate', checkAdminRoute);
+    return () => window.removeEventListener('popstate', checkAdminRoute);
   }, []);
 
   // Global Admin Keyboard Shortcut (Ctrl+Shift+A)
@@ -305,16 +325,9 @@ export default function App() {
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                     {config.title || 'M14BEAT导航'} 已就绪
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
-                    系统已成功为您启动，初始数据已清空。您可以直接点击下方按钮登录后台面板，配置属于您的分类与导航网址。
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                    暂未添加网址导航数据。请管理员通过专属后台链接（如访问 /admin 或快捷键）进行配置。
                   </p>
-                  <button
-                    onClick={() => setIsAdminModalOpen(true)}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/25 transition-all inline-flex items-center gap-2"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span>登录后台开始配置</span>
-                  </button>
                 </div>
               ) : groupedLinks.length === 0 ? (
                 <div className="text-center py-16 bg-white/60 dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
@@ -391,12 +404,6 @@ export default function App() {
             <span>{config.footerText || '© 2026 M14BEAT导航. All rights reserved.'}</span>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setIsAdminModalOpen(true)}
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                后台配置
-              </button>
-              <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
@@ -405,15 +412,6 @@ export default function App() {
             </div>
           </div>
         </footer>
-
-        {/* Floating Quick Action Button for Mobile / Touch device */}
-        <button
-          onClick={() => setIsAdminModalOpen(true)}
-          className="fixed bottom-6 right-6 z-30 p-3.5 bg-indigo-600 text-white rounded-full shadow-2xl shadow-indigo-600/50 active:scale-90 hover:bg-indigo-700 transition-all sm:hidden flex items-center justify-center border-2 border-white/20"
-          title="进入配置后台"
-        >
-          <Settings className="w-5 h-5 animate-spin-slow" />
-        </button>
 
         {/* Admin Backend Config Dashboard Modal */}
         <AdminModal
